@@ -58,6 +58,8 @@ def launch_tmux(*,
     if verbose:
         ic(xterm_process)
 
+    xterm_process(_bg=True, _bg_exc=True)
+
 
 @click.command()
 @click.argument('server_name', type=str)
