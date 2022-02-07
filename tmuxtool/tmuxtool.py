@@ -67,8 +67,6 @@ def launch_tmux(*,
 def cli(ctx,
         server_name: str,
         arguments: tuple[str],
-        sysskel: Path,
-        ipython: bool,
         verbose: int,
         verbose_inf: bool,
         ):
