@@ -73,7 +73,6 @@ def list_tmux(*,
     for line in sh.tmux('-L', server_name, 'ls'):
         ic(line)
 
-    list_servers()
     #sh.tmux('-L', server_name, 'set-option', '-g', 'remain-on-exit', 'failed')
 
     #xterm_process = sh.xterm.bake('-e',
@@ -89,13 +88,21 @@ def list_tmux(*,
     #xterm_process(_bg=True, _bg_exc=True)
 
 
-def list_servers():
+def get_server_pids():
+    server_pids = []
     for proc in psutil.process_iter(['pid', 'name', 'username', 'open_files']):
         if proc.info['name'].startswith('tmux'):
             print(proc.info)
+            server_pids.append(proc.info['pid'])
 
+    return server_pids
+
+
+def get_server_sockets():
+    server_pids = get_server_pids()
     for conn in psutil.net_connections(kind='unix'):
-        ic(conn)
+        if conn.info['pid'] in server_pids:
+            ic(conn)
 
 
 @click.group(no_args_is_help=True, cls=AHGroup)
@@ -151,3 +158,5 @@ def ls(ctx,
 
     list_tmux(server_name=server_name,
               verbose=verbose,)
+
+    get_server_sockets()
