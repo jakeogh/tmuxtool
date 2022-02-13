@@ -104,7 +104,8 @@ def get_server_sockets():
     for conn in psutil.net_connections(kind='unix'):
         #ic(conn)
         if conn.pid in server_pids:
-            ic(conn)
+            if conn.laddr.startswith(f"/tmp/tmux-{os.getuid()}/"):
+                ic(conn)
 
 
 @click.group(no_args_is_help=True, cls=AHGroup)
