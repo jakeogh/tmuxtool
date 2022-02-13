@@ -155,6 +155,7 @@ def ls(ctx,
        verbose_inf: bool,
        ):
 
+    ic()
     tty, verbose = tv(ctx=ctx,
                       verbose=verbose,
                       verbose_inf=verbose_inf,
