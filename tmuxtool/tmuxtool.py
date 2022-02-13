@@ -131,7 +131,7 @@ def run(ctx,
                 verbose=verbose,)
 
 
-@cli.command()
+@cli.command('ls')
 @click.argument('server_name', type=str)
 @click_add_options(click_global_options)
 @click.pass_context
