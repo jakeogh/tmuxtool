@@ -101,7 +101,8 @@ def get_server_pids():
 def get_server_sockets():
     server_pids = get_server_pids()
     for conn in psutil.net_connections(kind='unix'):
-        if conn.info['pid'] in server_pids:
+        ic(conn)
+        if conn.pid in server_pids:
             ic(conn)
 
 
