@@ -37,6 +37,8 @@ from asserttool import tv
 from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
+from mptool import output
+from mptool import unmp
 
 sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
 
@@ -73,26 +75,11 @@ def list_tmux(*,
     for line in sh.tmux('-L', server_name, 'ls'):
         ic(line)
 
-    #sh.tmux('-L', server_name, 'set-option', '-g', 'remain-on-exit', 'failed')
-
-    #xterm_process = sh.xterm.bake('-e',
-    #                              'tmux',
-    #                              '-L',
-    #                              server_name,
-    #                              'new-session',
-    #                              '-d', *arguments,)
-
-    #if verbose:
-    #    ic(xterm_process)
-
-    #xterm_process(_bg=True, _bg_exc=True)
-
 
 def get_server_pids():
     server_pids = []
     for proc in psutil.process_iter(['pid', 'name', 'username', 'open_files']):
         if proc.info['name'] == 'tmux: server':
-            print(proc.info)
             server_pids.append(proc.info['pid'])
 
     return server_pids
@@ -100,7 +87,6 @@ def get_server_pids():
 
 def get_server_sockets():
     server_pids = get_server_pids()
-    #ic(server_pids)
     sockets = set([])
     for conn in psutil.net_connections(kind='unix'):
         #ic(conn)
@@ -148,11 +134,11 @@ def run(ctx,
 
 
 @cli.command()
-@click.argument('server_name', type=str, nargs=-1)
+@click.argument('server_names', type=str, nargs=-1)
 @click_add_options(click_global_options)
 @click.pass_context
 def ls(ctx,
-       server_name: tuple[str],
+       server_names: tuple[str],
        verbose: int,
        verbose_inf: bool,
        ):
@@ -162,8 +148,15 @@ def ls(ctx,
                       verbose_inf=verbose_inf,
                       )
 
-    if server_name:
-        list_tmux(server_name=server_name,
+    if server_names:
+        iterator = server_names
+    else:
+        iterator = unmp(valid_types=[str,], verbose=verbose,)
+
+    for index, server in enumerate(iterator):
+        if verbose:
+            ic(index, server)
+        list_tmux(server_name=server,
                   verbose=verbose,)
 
     else:
