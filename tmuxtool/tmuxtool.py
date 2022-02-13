@@ -21,7 +21,8 @@
 # pylint: disable=R0916  # Too many boolean expressions in if statement
 # pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
 
-
+import os
+import subprocess
 from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
@@ -29,6 +30,7 @@ from signal import signal
 from typing import Union
 
 import click
+import psutil
 import sh
 from asserttool import ic
 from asserttool import tv
@@ -71,6 +73,7 @@ def list_tmux(*,
     for line in sh.tmux('-L', server_name, 'ls'):
         ic(line)
 
+    list_servers()
     #sh.tmux('-L', server_name, 'set-option', '-g', 'remain-on-exit', 'failed')
 
     #xterm_process = sh.xterm.bake('-e',
@@ -84,6 +87,12 @@ def list_tmux(*,
     #    ic(xterm_process)
 
     #xterm_process(_bg=True, _bg_exc=True)
+
+
+def list_servers():
+    for proc in psutil.process_iter(['pid', 'name', 'username']):
+        print(proc.info)
+
 
 
 @click.group(no_args_is_help=True, cls=AHGroup)
