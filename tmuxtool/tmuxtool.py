@@ -26,11 +26,13 @@ from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
+from typing import Union
 
 import click
 import sh
 from asserttool import ic
 from asserttool import tv
+from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
 
@@ -41,7 +43,7 @@ signal(SIGPIPE, SIG_DFL)
 
 def launch_tmux(*,
                 server_name: str,
-                arguments: list,
+                arguments: Union[list, tuple],
                 verbose: int,
                 ):
 
@@ -61,12 +63,49 @@ def launch_tmux(*,
     xterm_process(_bg=True, _bg_exc=True)
 
 
-@click.command()
+def list_tmux(*,
+              server_name: str,
+              verbose: int,
+              ):
+
+    for line in sh.tmux('-L', server_name, 'ls'):
+        ic(line)
+
+    #sh.tmux('-L', server_name, 'set-option', '-g', 'remain-on-exit', 'failed')
+
+    #xterm_process = sh.xterm.bake('-e',
+    #                              'tmux',
+    #                              '-L',
+    #                              server_name,
+    #                              'new-session',
+    #                              '-d', *arguments,)
+
+    #if verbose:
+    #    ic(xterm_process)
+
+    #xterm_process(_bg=True, _bg_exc=True)
+
+
+@click.group(no_args_is_help=True, cls=AHGroup)
+@click_add_options(click_global_options)
+@click.pass_context
+def cli(ctx,
+        verbose: Union[bool, int, float],
+        verbose_inf: bool,
+        ):
+
+    tty, verbose = tv(ctx=ctx,
+                      verbose=verbose,
+                      verbose_inf=verbose_inf,
+                      )
+
+
+@cli.command()
 @click.argument('server_name', type=str)
 @click.argument("arguments", type=str, nargs=-1)
 @click_add_options(click_global_options)
 @click.pass_context
-def cli(ctx,
+def run(ctx,
         server_name: str,
         arguments: tuple[str],
         verbose: int,
@@ -81,3 +120,22 @@ def cli(ctx,
     launch_tmux(server_name=server_name,
                 arguments=arguments,
                 verbose=verbose,)
+
+
+@cli.command()
+@click.argument('server_name', type=str)
+@click_add_options(click_global_options)
+@click.pass_context
+def list(ctx,
+         server_name: str,
+         verbose: int,
+         verbose_inf: bool,
+         ):
+
+    tty, verbose = tv(ctx=ctx,
+                      verbose=verbose,
+                      verbose_inf=verbose_inf,
+                      )
+
+    list_tmux(server_name=server_name,
+              verbose=verbose,)
