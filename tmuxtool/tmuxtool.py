@@ -91,7 +91,8 @@ def list_tmux(*,
 
 def list_servers():
     for proc in psutil.process_iter(['pid', 'name', 'username']):
-        print(proc.info)
+        if proc.info['name']== 'tmux':
+            print(proc.info)
 
 
 
