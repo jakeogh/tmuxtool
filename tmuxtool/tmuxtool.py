@@ -100,12 +100,15 @@ def get_server_pids():
 
 def get_server_sockets():
     server_pids = get_server_pids()
-    ic(server_pids)
+    #ic(server_pids)
+    sockets = set([])
     for conn in psutil.net_connections(kind='unix'):
         #ic(conn)
         if conn.pid in server_pids:
             if conn.laddr.startswith(f"/tmp/tmux-{os.getuid()}/"):
-                ic(conn)
+                #ic(conn)
+                sockets.add(conn.laddr)
+    return sockets
 
 
 @click.group(no_args_is_help=True, cls=AHGroup)
@@ -145,11 +148,11 @@ def run(ctx,
 
 
 @cli.command()
-@click.argument('server_name', type=str)
+@click.argument('server_name', type=str, nargs=-1)
 @click_add_options(click_global_options)
 @click.pass_context
 def ls(ctx,
-       server_name: str,
+       server_name: tuple[str],
        verbose: int,
        verbose_inf: bool,
        ):
@@ -159,7 +162,10 @@ def ls(ctx,
                       verbose_inf=verbose_inf,
                       )
 
-    list_tmux(server_name=server_name,
-              verbose=verbose,)
+    if server_name:
+        list_tmux(server_name=server_name,
+                  verbose=verbose,)
 
-    get_server_sockets()
+    else:
+        server_sockets = get_server_sockets()
+        ic(server_sockets)
