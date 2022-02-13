@@ -133,6 +133,12 @@ def run(ctx,
                 verbose=verbose,)
 
 
+def get_tmux_server_names():
+    server_sockets = get_server_sockets()
+    for socket in server_sockets:
+        yield Path(socket).name
+
+
 @cli.command()
 @click.argument('server_names', type=str, nargs=-1)
 @click_add_options(click_global_options)
@@ -151,7 +157,7 @@ def ls(ctx,
     if server_names:
         iterator = server_names
     else:
-        iterator = unmp(valid_types=[str,], verbose=verbose,)
+        iterator = get_tmux_server_names()
 
     for index, server in enumerate(iterator):
         if verbose:
@@ -159,6 +165,3 @@ def ls(ctx,
         list_tmux(server_name=server,
                   verbose=verbose,)
 
-    else:
-        server_sockets = get_server_sockets()
-        ic(server_sockets)
