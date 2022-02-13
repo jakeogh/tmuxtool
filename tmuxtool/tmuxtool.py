@@ -106,7 +106,6 @@ def get_tmux_server_names(verbose: Union[bool, int, float]):
     if verbose:
         ic(server_sockets)
     for socket in server_sockets:
-        ic(socket)
         yield Path(socket).name
 
 
@@ -156,7 +155,6 @@ def ls(ctx,
        verbose_inf: bool,
        ):
 
-    ic()
     tty, verbose = tv(ctx=ctx,
                       verbose=verbose,
                       verbose_inf=verbose_inf,
@@ -170,7 +168,7 @@ def ls(ctx,
     for index, server in enumerate(iterator):
         if verbose:
             ic(index, server)
-            for line in list_tmux(server_name=server,
-                                  verbose=verbose,):
-                output((server, line), tty=tty, verbose=verbose)
+        for line in list_tmux(server_name=server,
+                              verbose=verbose,):
+            output((server, line), tty=tty, verbose=verbose)
 
