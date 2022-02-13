@@ -73,7 +73,9 @@ def list_tmux(*,
               ):
 
     for line in sh.tmux('-L', server_name, 'ls'):
-        ic(line)
+        if verbose:
+            ic(line)
+        yield line
 
 
 def get_server_pids():
@@ -162,6 +164,7 @@ def ls(ctx,
     for index, server in enumerate(iterator):
         if verbose:
             ic(index, server)
-        list_tmux(server_name=server,
-                  verbose=verbose,)
+            for line in list_tmux(server_name=server,
+                                  verbose=verbose,):
+                output((server, line), tty=tty, verbose=verbose)
 
