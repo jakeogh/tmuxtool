@@ -106,6 +106,7 @@ def get_tmux_server_names(verbose: Union[bool, int, float]):
     if verbose:
         ic(server_sockets)
     for socket in server_sockets:
+        ic(socket)
         yield Path(socket).name
 
 
