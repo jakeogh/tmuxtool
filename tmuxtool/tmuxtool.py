@@ -72,6 +72,8 @@ def list_tmux(*,
               verbose: int,
               ):
 
+    if verbose:
+        ic(server_name)
     for line in sh.tmux('-L', server_name, 'ls'):
         if verbose:
             ic(line)
