@@ -94,6 +94,8 @@ def list_servers():
         if proc.info['name'].startswith('tmux'):
             print(proc.info)
 
+    for conn in psutil.net_connections(kind='unix'):
+        ic(conn)
 
 
 @click.group(no_args_is_help=True, cls=AHGroup)
