@@ -90,7 +90,7 @@ def list_tmux(*,
 
 
 def list_servers():
-    for proc in psutil.process_iter(['pid', 'name', 'username']):
+    for proc in psutil.process_iter(['pid', 'name', 'username', 'open_files']):
         if proc.info['name'].startswith('tmux'):
             print(proc.info)
 
