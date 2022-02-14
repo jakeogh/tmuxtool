@@ -200,5 +200,5 @@ def attach(ctx,
                               verbose=verbose,):
             if not line.endswith('(attached)'):
                 window_id = line.split(':')[0]
-                ic(window_id)
+                #ic(window_id)
                 os.system(f'tmux -L {server} attach -t {window_id}')
