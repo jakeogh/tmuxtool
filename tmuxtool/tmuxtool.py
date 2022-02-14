@@ -33,10 +33,10 @@ import click
 import psutil
 import sh
 from asserttool import ic
-from asserttool import tv
 from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
+from clicktool import tv
 from mptool import output
 from mptool import unmp
 
