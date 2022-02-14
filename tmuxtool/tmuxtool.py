@@ -172,3 +172,33 @@ def ls(ctx,
                               verbose=verbose,):
             output((server, line), tty=tty, verbose=verbose)
 
+
+@cli.command()
+@click.argument('server_names', type=str, nargs=-1)
+@click_add_options(click_global_options)
+@click.pass_context
+def attach(ctx,
+           server_names: tuple[str],
+           verbose: int,
+           verbose_inf: bool,
+           ):
+
+    tty, verbose = tv(ctx=ctx,
+                      verbose=verbose,
+                      verbose_inf=verbose_inf,
+                      )
+
+    if server_names:
+        iterator = server_names
+    else:
+        iterator = get_tmux_server_names(verbose=verbose)
+
+    for index, server in enumerate(iterator):
+        if verbose:
+            ic(index, server)
+        for line in list_tmux(server_name=server,
+                              verbose=verbose,):
+            if not line.endswith('(attached)'):
+                window_id = line.split('')[0]
+                ic(window_id)
+                os.system(f'tmux -L {server} attach -t {window_id}')
