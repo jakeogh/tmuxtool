@@ -1,1 +1,1 @@
-from .tmuxtool import run
+from .tmuxtool import launch_tmux
