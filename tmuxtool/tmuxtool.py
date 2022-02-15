@@ -48,7 +48,7 @@ signal(SIGPIPE, SIG_DFL)
 def launch_tmux(*,
                 server_name: str,
                 arguments: Union[list, tuple],
-                verbose: int,
+                verbose: Union[bool, int, float],
                 ):
 
     sh.tmux('-L', server_name, 'start-server')
@@ -69,7 +69,7 @@ def launch_tmux(*,
 
 def list_tmux(*,
               server_name: str,
-              verbose: int,
+              verbose: Union[bool, int, float],
               ):
 
     if verbose:
@@ -131,7 +131,7 @@ def cli(ctx,
 def run(ctx,
         server_name: str,
         arguments: tuple[str],
-        verbose: int,
+        verbose: Union[bool, int, float],
         verbose_inf: bool,
         ):
 
@@ -151,7 +151,7 @@ def run(ctx,
 @click.pass_context
 def ls(ctx,
        server_names: tuple[str],
-       verbose: int,
+       verbose: Union[bool, int, float],
        verbose_inf: bool,
        ):
 
@@ -179,7 +179,7 @@ def ls(ctx,
 @click.pass_context
 def attach(ctx,
            server_names: tuple[str],
-           verbose: int,
+           verbose: Union[bool, int, float],
            verbose_inf: bool,
            ):
 
@@ -198,6 +198,8 @@ def attach(ctx,
             ic(index, server)
         for line in list_tmux(server_name=server,
                               verbose=verbose,):
+            if verbose:
+                ic(line)
             if not line.endswith('(attached)'):
                 window_id = line.split(':')[0]
                 #ic(window_id)
