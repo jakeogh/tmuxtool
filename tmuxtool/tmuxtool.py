@@ -51,6 +51,7 @@ def launch_tmux(*,
                 verbose: Union[bool, int, float],
                 ):
 
+    assert isinstance(arguments, list) or isinstance(arguments, tuple)
     sh.tmux('-L', server_name, 'start-server')
     sh.tmux('-L', server_name, 'set-option', '-g', 'remain-on-exit', 'failed')
 
