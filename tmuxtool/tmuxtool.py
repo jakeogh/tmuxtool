@@ -23,6 +23,7 @@
 
 import os
 import subprocess
+from math import inf
 from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
@@ -198,9 +199,9 @@ def attach(ctx,
             ic(index, server)
         for line in list_tmux(server_name=server,
                               verbose=verbose,):
-            if verbose:
+            if verbose == inf:
                 ic(line)
-            if not line.endswith('(attached)'):
+            if not line.endswith('(attached)\n'):
                 window_id = line.split(':')[0]
                 #ic(window_id)
                 os.system(f'tmux -L {server} attach -t {window_id}')
