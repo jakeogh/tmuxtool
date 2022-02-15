@@ -145,7 +145,6 @@ def run(ctx,
                 verbose=verbose,)
 
 
-
 @cli.command('list')
 @click.argument('server_names', type=str, nargs=-1)
 @click_add_options(click_global_options)
