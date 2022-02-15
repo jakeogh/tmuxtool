@@ -154,7 +154,8 @@ def alias_list_ls(ctx,
                   verbose: Union[bool, int, float],
                   verbose_inf: bool,
                   ):
-    ctx.invoke(ls, server_names, verbose, verbose_inf)
+
+    ctx.invoke(ls, server_names=server_names, verbose=verbose, verbose_inf=verbose_inf)
 
 
 @cli.command()
