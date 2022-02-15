@@ -22,7 +22,6 @@
 # pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
 
 import os
-#import subprocess
 from math import inf
 from pathlib import Path
 from signal import SIG_DFL
