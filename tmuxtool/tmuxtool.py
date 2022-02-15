@@ -146,6 +146,19 @@ def run(ctx,
                 verbose=verbose,)
 
 
+
+@cli.command('list')
+@click.argument('server_names', type=str, nargs=-1)
+@click_add_options(click_global_options)
+@click.pass_context
+def alias_list_ls(ctx,
+                  server_names: tuple[str],
+                  verbose: Union[bool, int, float],
+                  verbose_inf: bool,
+                  ):
+    ctx.invoke(ls, server_names, verbose, verbose_inf)
+
+
 @cli.command()
 @click.argument('server_names', type=str, nargs=-1)
 @click_add_options(click_global_options)
