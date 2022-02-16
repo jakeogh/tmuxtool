@@ -76,14 +76,20 @@ def list_tmux(*,
 
     if verbose:
         ic(server_name)
-    tmux_command = sh.Command('tmux')
-    tmux_command.bake('-L', server_name, 'ls')
+    #tmux_command = sh.Command('tmux')
+    #tmux_command.bake('-L', server_name, 'ls')
+    #if show_command:
+    #    tmux_command.bake('-F', '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"')
     if show_command:
-        tmux_command.bake('-F', '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"')
-    for line in tmux_command():
-        if verbose:
-            ic(line)
-        yield line
+        for line in sh.tmux('-L', server_name, 'ls', '-F', '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"'):
+            if verbose:
+                ic(line)
+            yield line
+    else:
+        for line in sh.tmux('-L', server_name, 'ls'):
+            if verbose:
+                ic(line)
+            yield line
 
 
 def get_server_pids():
