@@ -76,7 +76,7 @@ def list_tmux(*,
 
     if verbose:
         ic(server_name)
-    tmux_command = sh.tmux()
+    tmux_command = sh.Command('tmux')
     tmux_command.bake('-L', server_name, 'ls')
     if show_command:
         tmux_command.bake('-F', '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"')
