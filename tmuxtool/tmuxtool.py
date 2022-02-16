@@ -71,11 +71,16 @@ def launch_tmux(*,
 def list_tmux(*,
               server_name: str,
               verbose: Union[bool, int, float],
+              show_command: bool,
               ):
 
     if verbose:
         ic(server_name)
-    for line in sh.tmux('-L', server_name, 'ls'):
+    tmux_command = sh.tmux()
+    tmux_command.bake('-L', server_name, 'ls')
+    if show_command:
+        tmux_command.bake('-F', '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"')
+    for line in tmux_command():
         if verbose:
             ic(line)
         yield line
@@ -183,7 +188,9 @@ def ls(ctx,
         if verbose:
             ic(index, server)
         for line in list_tmux(server_name=server,
-                              verbose=verbose,):
+                              show_command=tty,
+                              verbose=verbose,
+                              ):
             output((server, line), tty=tty, verbose=verbose)
 
 
@@ -211,6 +218,7 @@ def attach(ctx,
         if verbose:
             ic(index, server)
         for line in list_tmux(server_name=server,
+                              show_command=False,
                               verbose=verbose,):
             if verbose == inf:
                 ic(line)
