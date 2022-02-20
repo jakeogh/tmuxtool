@@ -45,22 +45,26 @@ sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
 signal(SIGPIPE, SIG_DFL)
 
 
-def launch_tmux(*,
-                server_name: str,
-                arguments: Union[list, tuple],
-                verbose: Union[bool, int, float],
-                ):
+def launch_tmux(
+    *,
+    server_name: str,
+    arguments: Union[list, tuple],
+    verbose: Union[bool, int, float],
+):
 
     assert isinstance(arguments, list) or isinstance(arguments, tuple)
-    sh.tmux('-L', server_name, 'start-server')
-    sh.tmux('-L', server_name, 'set-option', '-g', 'remain-on-exit', 'failed')
+    sh.tmux("-L", server_name, "start-server")
+    sh.tmux("-L", server_name, "set-option", "-g", "remain-on-exit", "failed")
 
-    xterm_process = sh.xterm.bake('-e',
-                                  'tmux',
-                                  '-L',
-                                  server_name,
-                                  'new-session',
-                                  '-d', *arguments,)
+    xterm_process = sh.xterm.bake(
+        "-e",
+        "tmux",
+        "-L",
+        server_name,
+        "new-session",
+        "-d",
+        *arguments,
+    )
 
     if verbose:
         ic(xterm_process)
@@ -68,25 +72,32 @@ def launch_tmux(*,
     xterm_process(_bg=True, _bg_exc=True)
 
 
-def list_tmux(*,
-              server_name: str,
-              verbose: Union[bool, int, float],
-              show_command: bool,
-              ):
+def list_tmux(
+    *,
+    server_name: str,
+    verbose: Union[bool, int, float],
+    show_command: bool,
+):
 
     if verbose:
         ic(server_name)
-    #tmux_command = sh.Command('tmux')
-    #tmux_command.bake('-L', server_name, 'ls')
-    #if show_command:
+    # tmux_command = sh.Command('tmux')
+    # tmux_command.bake('-L', server_name, 'ls')
+    # if show_command:
     #    tmux_command.bake('-F', '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"')
     if show_command:
-        for line in sh.tmux('-L', server_name, 'ls', '-F', '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"'):
+        for line in sh.tmux(
+            "-L",
+            server_name,
+            "ls",
+            "-F",
+            '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
+        ):
             if verbose:
                 ic(line)
             yield line
     else:
-        for line in sh.tmux('-L', server_name, 'ls'):
+        for line in sh.tmux("-L", server_name, "ls"):
             if verbose:
                 ic(line)
             yield line
@@ -94,9 +105,9 @@ def list_tmux(*,
 
 def get_server_pids():
     server_pids = []
-    for proc in psutil.process_iter(['pid', 'name', 'username', 'open_files']):
-        if proc.info['name'] == 'tmux: server':
-            server_pids.append(proc.info['pid'])
+    for proc in psutil.process_iter(["pid", "name", "username", "open_files"]):
+        if proc.info["name"] == "tmux: server":
+            server_pids.append(proc.info["pid"])
 
     return server_pids
 
@@ -104,11 +115,11 @@ def get_server_pids():
 def get_server_sockets():
     server_pids = get_server_pids()
     sockets = set([])
-    for conn in psutil.net_connections(kind='unix'):
-        #ic(conn)
+    for conn in psutil.net_connections(kind="unix"):
+        # ic(conn)
         if conn.pid in server_pids:
             if conn.laddr.startswith(f"/tmp/tmux-{os.getuid()}/"):
-                #ic(conn)
+                # ic(conn)
                 sockets.add(conn.laddr)
     return sockets
 
@@ -124,66 +135,75 @@ def get_tmux_server_names(verbose: Union[bool, int, float]):
 @click.group(no_args_is_help=True, cls=AHGroup)
 @click_add_options(click_global_options)
 @click.pass_context
-def cli(ctx,
-        verbose: Union[bool, int, float],
-        verbose_inf: bool,
-        ):
+def cli(
+    ctx,
+    verbose: Union[bool, int, float],
+    verbose_inf: bool,
+):
 
-    tty, verbose = tv(ctx=ctx,
-                      verbose=verbose,
-                      verbose_inf=verbose_inf,
-                      )
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
 
 
 @cli.command()
-@click.argument('server_name', type=str)
+@click.argument("server_name", type=str)
 @click.argument("arguments", type=str, nargs=-1)
 @click_add_options(click_global_options)
 @click.pass_context
-def run(ctx,
-        server_name: str,
-        arguments: tuple[str],
-        verbose: Union[bool, int, float],
-        verbose_inf: bool,
-        ):
+def run(
+    ctx,
+    server_name: str,
+    arguments: tuple[str],
+    verbose: Union[bool, int, float],
+    verbose_inf: bool,
+):
 
-    tty, verbose = tv(ctx=ctx,
-                      verbose=verbose,
-                      verbose_inf=verbose_inf,
-                      )
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
 
-    launch_tmux(server_name=server_name,
-                arguments=arguments,
-                verbose=verbose,)
+    launch_tmux(
+        server_name=server_name,
+        arguments=arguments,
+        verbose=verbose,
+    )
 
 
-@cli.command('list')
-@click.argument('server_names', type=str, nargs=-1)
+@cli.command("list")
+@click.argument("server_names", type=str, nargs=-1)
 @click_add_options(click_global_options)
 @click.pass_context
-def alias_list_ls(ctx,
-                  server_names: tuple[str],
-                  verbose: Union[bool, int, float],
-                  verbose_inf: bool,
-                  ):
+def alias_list_ls(
+    ctx,
+    server_names: tuple[str],
+    verbose: Union[bool, int, float],
+    verbose_inf: bool,
+):
 
     ctx.invoke(ls, server_names=server_names, verbose=verbose, verbose_inf=verbose_inf)
 
 
 @cli.command()
-@click.argument('server_names', type=str, nargs=-1)
+@click.argument("server_names", type=str, nargs=-1)
 @click_add_options(click_global_options)
 @click.pass_context
-def ls(ctx,
-       server_names: tuple[str],
-       verbose: Union[bool, int, float],
-       verbose_inf: bool,
-       ):
+def ls(
+    ctx,
+    server_names: tuple[str],
+    verbose: Union[bool, int, float],
+    verbose_inf: bool,
+):
 
-    tty, verbose = tv(ctx=ctx,
-                      verbose=verbose,
-                      verbose_inf=verbose_inf,
-                      )
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
 
     if server_names:
         iterator = server_names
@@ -193,27 +213,30 @@ def ls(ctx,
     for index, server in enumerate(iterator):
         if verbose:
             ic(index, server)
-        for line in list_tmux(server_name=server,
-                              show_command=tty,
-                              verbose=verbose,
-                              ):
+        for line in list_tmux(
+            server_name=server,
+            show_command=tty,
+            verbose=verbose,
+        ):
             output((server, line), tty=tty, verbose=verbose)
 
 
 @cli.command()
-@click.argument('server_names', type=str, nargs=-1)
+@click.argument("server_names", type=str, nargs=-1)
 @click_add_options(click_global_options)
 @click.pass_context
-def attach(ctx,
-           server_names: tuple[str],
-           verbose: Union[bool, int, float],
-           verbose_inf: bool,
-           ):
+def attach(
+    ctx,
+    server_names: tuple[str],
+    verbose: Union[bool, int, float],
+    verbose_inf: bool,
+):
 
-    tty, verbose = tv(ctx=ctx,
-                      verbose=verbose,
-                      verbose_inf=verbose_inf,
-                      )
+    tty, verbose = tv(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+    )
 
     if server_names:
         iterator = server_names
@@ -223,12 +246,14 @@ def attach(ctx,
     for index, server in enumerate(iterator):
         if verbose:
             ic(index, server)
-        for line in list_tmux(server_name=server,
-                              show_command=False,
-                              verbose=verbose,):
+        for line in list_tmux(
+            server_name=server,
+            show_command=False,
+            verbose=verbose,
+        ):
             if verbose == inf:
                 ic(line)
-            if not line.endswith('(attached)\n'):
-                window_id = line.split(':')[0]
-                #ic(window_id)
-                os.system(f'tmux -L {server} attach -t {window_id}')
+            if not line.endswith("(attached)\n"):
+                window_id = line.split(":")[0]
+                # ic(window_id)
+                os.system(f"tmux -L {server} attach -t {window_id}")
