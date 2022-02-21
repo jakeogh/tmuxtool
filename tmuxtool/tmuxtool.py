@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
-# tab-width:4
 
 # pylint: disable=C0111  # docstrings are always outdated and wrong
 # pylint: disable=C0114  # Missing module docstring (missing-module-docstring)
@@ -139,6 +138,7 @@ def cli(
     ctx,
     verbose: Union[bool, int, float],
     verbose_inf: bool,
+    dict_input: bool,
 ):
 
     tty, verbose = tv(
@@ -159,6 +159,7 @@ def run(
     arguments: tuple[str],
     verbose: Union[bool, int, float],
     verbose_inf: bool,
+    dict_input: bool,
 ):
 
     tty, verbose = tv(
@@ -183,6 +184,7 @@ def alias_list_ls(
     server_names: tuple[str],
     verbose: Union[bool, int, float],
     verbose_inf: bool,
+    dict_input: bool,
 ):
 
     ctx.invoke(ls, server_names=server_names, verbose=verbose, verbose_inf=verbose_inf)
@@ -197,6 +199,7 @@ def ls(
     server_names: tuple[str],
     verbose: Union[bool, int, float],
     verbose_inf: bool,
+    dict_input: bool,
 ):
 
     tty, verbose = tv(
@@ -218,7 +221,13 @@ def ls(
             show_command=tty,
             verbose=verbose,
         ):
-            output((server, line), tty=tty, verbose=verbose)
+            output(
+                (server, line),
+                reason=server,
+                dict_input=dict_input,
+                tty=tty,
+                verbose=verbose,
+            )
 
 
 @cli.command()
@@ -230,6 +239,7 @@ def attach(
     server_names: tuple[str],
     verbose: Union[bool, int, float],
     verbose_inf: bool,
+    dict_input: bool,
 ):
 
     tty, verbose = tv(
