@@ -232,6 +232,7 @@ def ls(
 
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
+@click.option("--reverse", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def attach(
@@ -240,6 +241,7 @@ def attach(
     verbose: Union[bool, int, float],
     verbose_inf: bool,
     dict_input: bool,
+    reverse: bool,
 ):
 
     tty, verbose = tv(
@@ -252,6 +254,9 @@ def attach(
         iterator = server_names
     else:
         iterator = get_tmux_server_names(verbose=verbose)
+
+    if reverse:
+        iterator = reversed(iterator)
 
     for index, server in enumerate(iterator):
         if verbose:
