@@ -21,6 +21,7 @@
 # pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
 
 import os
+import sys
 from math import inf
 from pathlib import Path
 from signal import SIG_DFL
@@ -36,12 +37,22 @@ from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
 from clicktool import tv
+from eprint import eprint
 from mptool import output
 from mptool import unmp
 
 sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
 
 signal(SIGPIPE, SIG_DFL)
+
+
+def in_tmux(verbose: Union[bool, int, float]):
+    try:
+        print("os.environ['TMUX']:", os.environ["TMUX"])
+    except KeyError:
+        raise ValueError("start tmux!")
+        # print("start tmux!", file=sys.stderr)
+        # sys.exit(1)
 
 
 def launch_tmux(
@@ -173,6 +184,23 @@ def run(
         arguments=arguments,
         verbose=verbose,
     )
+
+
+@cli.command("in-tmux")
+@click_add_options(click_global_options)
+@click.pass_context
+def _in_tmux(
+    ctx,
+    verbose: Union[bool, int, float],
+    verbose_inf: bool,
+    dict_input: bool,
+):
+
+    try:
+        in_tmux(verbose=verbose)
+    except ValueError:
+        eprint("Error: not in tmux")
+        sys.exit(1)
 
 
 @cli.command("list")
