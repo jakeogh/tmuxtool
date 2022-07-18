@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 # -*- coding: utf8 -*-
 
-# pylint: disable=C0111  # docstrings are always outdated and wrong
-# pylint: disable=C0114  # Missing module docstring (missing-module-docstring)
-# pylint: disable=W0511  # todo is encouraged
-# pylint: disable=C0301  # line too long
-# pylint: disable=R0902  # too many instance attributes
-# pylint: disable=C0302  # too many lines in module
-# pylint: disable=C0103  # single letter var names, func name too descriptive
-# pylint: disable=R0911  # too many return statements
-# pylint: disable=R0912  # too many branches
-# pylint: disable=R0915  # too many statements
-# pylint: disable=R0913  # too many arguments
-# pylint: disable=R1702  # too many nested blocks
-# pylint: disable=R0914  # too many local variables
-# pylint: disable=R0903  # too few public methods
-# pylint: disable=E1101  # no member for base
-# pylint: disable=W0201  # attribute defined outside __init__
-# pylint: disable=R0916  # Too many boolean expressions in if statement
-# pylint: disable=C0305  # Trailing newlines editor should fix automatically, pointless warning
+# pylint: disable=missing-docstring               # [C0111] docstrings are always outdated and wrong
+# pylint: disable=missing-module-docstring        # [C0114]
+# pylint: disable=fixme                           # [W0511] todo is encouraged
+# pylint: disable=line-too-long                   # [C0301]
+# pylint: disable=too-many-instance-attributes    # [R0902]
+# pylint: disable=too-many-lines                  # [C0302] too many lines in module
+# pylint: disable=invalid-name                    # [C0103] single letter var names, name too descriptive
+# pylint: disable=too-many-return-statements      # [R0911]
+# pylint: disable=too-many-branches               # [R0912]
+# pylint: disable=too-many-statements             # [R0915]
+# pylint: disable=too-many-arguments              # [R0913]
+# pylint: disable=too-many-nested-blocks          # [R1702]
+# pylint: disable=too-many-locals                 # [R0914]
+# pylint: disable=too-few-public-methods          # [R0903]
+# pylint: disable=no-member                       # [E1101] no member for base
+# pylint: disable=attribute-defined-outside-init  # [W0201]
+# pylint: disable=too-many-boolean-expressions    # [R0916] in if statement
+
+from __future__ import annotations
 
 import os
 import sys
@@ -27,7 +28,6 @@ from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
 from signal import signal
-from typing import Union
 
 import click
 import psutil
@@ -46,7 +46,7 @@ sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
 signal(SIGPIPE, SIG_DFL)
 
 
-def in_tmux(verbose: Union[bool, int, float]):
+def in_tmux(verbose: bool | int | float):
     try:
         print("os.environ['TMUX']:", os.environ["TMUX"])
     except KeyError:
@@ -58,8 +58,8 @@ def in_tmux(verbose: Union[bool, int, float]):
 def launch_tmux(
     *,
     server_name: str,
-    arguments: Union[list, tuple],
-    verbose: Union[bool, int, float],
+    arguments: list | tuple,
+    verbose: bool | int | float,
 ):
 
     assert isinstance(arguments, list) or isinstance(arguments, tuple)
@@ -85,7 +85,7 @@ def launch_tmux(
 def list_tmux(
     *,
     server_name: str,
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
     show_command: bool,
 ):
 
@@ -134,7 +134,7 @@ def get_server_sockets():
     return sockets
 
 
-def get_tmux_server_names(verbose: Union[bool, int, float]):
+def get_tmux_server_names(verbose: bool | int | float):
     server_sockets = get_server_sockets()
     if verbose:
         ic(server_sockets)
@@ -147,7 +147,7 @@ def get_tmux_server_names(verbose: Union[bool, int, float]):
 @click.pass_context
 def cli(
     ctx,
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
     verbose_inf: bool,
     dict_input: bool,
 ):
@@ -168,7 +168,7 @@ def run(
     ctx,
     server_name: str,
     arguments: tuple[str],
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
     verbose_inf: bool,
     dict_input: bool,
 ):
@@ -191,7 +191,7 @@ def run(
 @click.pass_context
 def _in_tmux(
     ctx,
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
     verbose_inf: bool,
     dict_input: bool,
 ):
@@ -210,7 +210,7 @@ def _in_tmux(
 def alias_list_ls(
     ctx,
     server_names: tuple[str],
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
     verbose_inf: bool,
     dict_input: bool,
 ):
@@ -225,7 +225,7 @@ def alias_list_ls(
 def ls(
     ctx,
     server_names: tuple[str],
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
     verbose_inf: bool,
     dict_input: bool,
 ):
@@ -260,18 +260,19 @@ def ls(
 
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
-@click.option("--reverse", is_flag=True)
+@click.option("--oldest-first", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def attach(
     ctx,
     server_names: tuple[str],
-    verbose: Union[bool, int, float],
+    verbose: bool | int | float,
     verbose_inf: bool,
     dict_input: bool,
-    reverse: bool,
+    oldest_first: bool,
 ):
 
+    reverse = not oldest_first
     tty, verbose = tv(
         ctx=ctx,
         verbose=verbose,
