@@ -39,7 +39,6 @@ from clicktool import click_global_options
 from clicktool import tv
 from eprint import eprint
 from mptool import output
-from mptool import unmp
 
 sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
 
