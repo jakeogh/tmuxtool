@@ -148,7 +148,7 @@ def cli(
     ctx,
     verbose: bool | int | float,
     verbose_inf: bool,
-    dict_input: bool,
+    dict_output: bool,
 ):
 
     tty, verbose = tv(
@@ -169,7 +169,7 @@ def run(
     arguments: tuple[str],
     verbose: bool | int | float,
     verbose_inf: bool,
-    dict_input: bool,
+    dict_output: bool,
 ):
 
     tty, verbose = tv(
@@ -192,7 +192,7 @@ def _in_tmux(
     ctx,
     verbose: bool | int | float,
     verbose_inf: bool,
-    dict_input: bool,
+    dict_output: bool,
 ):
 
     try:
@@ -211,7 +211,7 @@ def alias_list_ls(
     server_names: tuple[str],
     verbose: bool | int | float,
     verbose_inf: bool,
-    dict_input: bool,
+    dict_output: bool,
 ):
 
     ctx.invoke(ls, server_names=server_names, verbose=verbose, verbose_inf=verbose_inf)
@@ -226,7 +226,7 @@ def ls(
     server_names: tuple[str],
     verbose: bool | int | float,
     verbose_inf: bool,
-    dict_input: bool,
+    dict_output: bool,
 ):
 
     tty, verbose = tv(
@@ -251,7 +251,7 @@ def ls(
             output(
                 (server, line),
                 reason=server,
-                dict_input=dict_input,
+                dict_output=dict_output,
                 tty=tty,
                 verbose=verbose,
             )
@@ -267,7 +267,7 @@ def attach(
     server_names: tuple[str],
     verbose: bool | int | float,
     verbose_inf: bool,
-    dict_input: bool,
+    dict_output: bool,
     oldest_first: bool,
 ):
 
