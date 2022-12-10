@@ -259,7 +259,7 @@ def ls(
 
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
-@click.option("--reverse", "oldest_first", is_flag=True)
+@click.option("--reverse", is_flag=True)
 @click.option("--all", "all_at_once", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
@@ -269,18 +269,16 @@ def attach(
     verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
-    oldest_first: bool,
+    reverse: bool,
     all_at_once: bool,
 ):
 
-    reverse = not oldest_first
     tty, verbose = tv(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
     )
 
-    assert reverse
     if server_names:
         iterator = server_names
     else:
