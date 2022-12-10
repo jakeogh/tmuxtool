@@ -259,13 +259,13 @@ def ls(
 
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
-@click.option("--reverse", "--oldest-first", is_flag=True)
-@click.option("--all-at-once", "--all", is_flag=True)
+@click.option("--reverse", "oldest_first", is_flag=True)
+@click.option("--all", "all_at_once", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def attach(
     ctx,
-    server_names: tuple[str],
+    server_names: tuple[str, ...],
     verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
@@ -285,10 +285,13 @@ def attach(
     else:
         iterator = get_tmux_server_names(verbose=verbose)
 
-    if reverse:
-        iterator = reversed(iterator)
+    _iterator = list(iterator)
+    ic(_iterator)
 
-    for index, server in enumerate(iterator):
+    if reverse:
+        _iterator = reversed(_iterator)
+
+    for index, server in enumerate(_iterator):
         if verbose:
             ic(index, server)
         for line in list_tmux(
