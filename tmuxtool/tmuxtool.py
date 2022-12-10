@@ -307,5 +307,5 @@ def attach(
                 # ic(window_id)
                 command = f"tmux -L {server} attach -t {window_id}"
                 if all_at_once:
-                    command += " &"
+                    command = "/usr/bin/xterm -e " + command
                 os.system(command)
