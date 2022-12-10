@@ -305,8 +305,8 @@ def attach(
             if not line.endswith("(attached)\n"):
                 window_id = line.split(":")[0]
                 # ic(window_id)
-                command = f"'tmux -L {server} attach -t {window_id}'"
+                command = f"tmux -L {server} attach -t {window_id}"
                 if all_at_once:
-                    command = "/usr/bin/xterm -e " + command
+                    command = "/usr/bin/xterm -e '" + command + "'"
                     command += " &"
                 os.system(command)
