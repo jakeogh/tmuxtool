@@ -260,6 +260,7 @@ def ls(
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
 @click.option("--oldest-first", is_flag=True)
+@click.option("--all", "--all-at-once", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def attach(
@@ -269,6 +270,7 @@ def attach(
     verbose_inf: bool,
     dict_output: bool,
     oldest_first: bool,
+    all_at_once: bool,
 ):
 
     reverse = not oldest_first
@@ -299,4 +301,7 @@ def attach(
             if not line.endswith("(attached)\n"):
                 window_id = line.split(":")[0]
                 # ic(window_id)
-                os.system(f"tmux -L {server} attach -t {window_id}")
+                command = f"tmux -L {server} attach -t {window_id}"
+                if all_at_once:
+                    command += " &"
+                os.system(command)
