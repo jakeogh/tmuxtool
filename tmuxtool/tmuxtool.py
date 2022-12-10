@@ -260,7 +260,7 @@ def ls(
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
 @click.option("--oldest-first", is_flag=True)
-@click.option("--all", "--all-at-once", is_flag=True)
+@click.option("--all-at-once", "--all", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def attach(
