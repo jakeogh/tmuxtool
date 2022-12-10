@@ -290,6 +290,8 @@ def attach(
 
     if reverse:
         _iterator = reversed(_iterator)
+        ic(_iterator)
+        _ = input("press enter")
 
     for index, server in enumerate(_iterator):
         if verbose:
