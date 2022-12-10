@@ -280,6 +280,7 @@ def attach(
         verbose_inf=verbose_inf,
     )
 
+    assert reverse
     if server_names:
         iterator = server_names
     else:
