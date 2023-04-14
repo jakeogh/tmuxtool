@@ -58,9 +58,8 @@ def launch_tmux(
     *,
     server_name: str,
     arguments: list | tuple,
-    verbose: bool | int | float,
+    verbose: bool | int | float = False,
 ):
-
     assert isinstance(arguments, list) or isinstance(arguments, tuple)
     sh.tmux("-L", server_name, "start-server")
     sh.tmux("-L", server_name, "set-option", "-g", "remain-on-exit", "failed")
@@ -84,10 +83,9 @@ def launch_tmux(
 def list_tmux(
     *,
     server_name: str,
-    verbose: bool | int | float,
+    verbose: bool | int | float = False,
     show_command: bool,
 ):
-
     if verbose:
         ic(server_name)
     # tmux_command = sh.Command('tmux')
@@ -146,11 +144,10 @@ def get_tmux_server_names(verbose: bool | int | float):
 @click.pass_context
 def cli(
     ctx,
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ):
-
     tty, verbose = tv(
         ctx=ctx,
         verbose=verbose,
@@ -166,12 +163,11 @@ def cli(
 def run(
     ctx,
     server_name: str,
-    arguments: tuple[str],
-    verbose: bool | int | float,
+    arguments: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ):
-
     tty, verbose = tv(
         ctx=ctx,
         verbose=verbose,
@@ -190,11 +186,10 @@ def run(
 @click.pass_context
 def _in_tmux(
     ctx,
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ):
-
     try:
         in_tmux(verbose=verbose)
     except ValueError:
@@ -208,12 +203,11 @@ def _in_tmux(
 @click.pass_context
 def alias_list_ls(
     ctx,
-    server_names: tuple[str],
-    verbose: bool | int | float,
+    server_names: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ):
-
     ctx.invoke(ls, server_names=server_names, verbose=verbose, verbose_inf=verbose_inf)
 
 
@@ -223,12 +217,11 @@ def alias_list_ls(
 @click.pass_context
 def ls(
     ctx,
-    server_names: tuple[str],
-    verbose: bool | int | float,
+    server_names: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
+    verbose: bool | int | float = False,
 ):
-
     tty, verbose = tv(
         ctx=ctx,
         verbose=verbose,
@@ -266,13 +259,12 @@ def ls(
 def attach(
     ctx,
     server_names: tuple[str, ...],
-    verbose: bool | int | float,
     verbose_inf: bool,
     dict_output: bool,
     reverse: bool,
     all_at_once: bool,
+    verbose: bool | int | float = False,
 ):
-
     tty, verbose = tv(
         ctx=ctx,
         verbose=verbose,
