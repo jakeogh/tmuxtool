@@ -83,8 +83,8 @@ def launch_tmux(
 def list_tmux(
     *,
     server_name: str,
-    verbose: bool | int | float = False,
     show_command: bool,
+    verbose: bool | int | float = False,
 ):
     if verbose:
         ic(server_name)
