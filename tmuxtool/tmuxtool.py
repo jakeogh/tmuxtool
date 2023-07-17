@@ -38,6 +38,7 @@ from clicktool import click_add_options
 from clicktool import click_global_options
 from clicktool import tv
 from eprint import eprint
+from globalverbose import gvd
 from mptool import output
 
 sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
@@ -45,7 +46,7 @@ sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
 signal(SIGPIPE, SIG_DFL)
 
 
-def in_tmux(verbose: bool | int | float):
+def in_tmux(verbose: bool | int | float = False):
     try:
         print("os.environ['TMUX']:", os.environ["TMUX"])
     except KeyError:
@@ -74,8 +75,7 @@ def launch_tmux(
         *arguments,
     )
 
-    if verbose:
-        ic(xterm_process)
+    ic(xterm_process)
 
     xterm_process(_bg=True, _bg_exc=True)
 
@@ -86,8 +86,7 @@ def list_tmux(
     show_command: bool,
     verbose: bool | int | float = False,
 ):
-    if verbose:
-        ic(server_name)
+    ic(server_name)
     # tmux_command = sh.Command('tmux')
     # tmux_command.bake('-L', server_name, 'ls')
     # if show_command:
@@ -100,13 +99,11 @@ def list_tmux(
             "-F",
             '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
         ):
-            if verbose:
-                ic(line)
+            ic(line)
             yield line
     else:
         for line in sh.tmux("-L", server_name, "ls"):
-            if verbose:
-                ic(line)
+            ic(line)
             yield line
 
 
@@ -131,10 +128,9 @@ def get_server_sockets():
     return sockets
 
 
-def get_tmux_server_names(verbose: bool | int | float):
+def get_tmux_server_names(verbose: bool | int | float = False):
     server_sockets = get_server_sockets()
-    if verbose:
-        ic(server_sockets)
+    ic(server_sockets)
     for socket in server_sockets:
         yield Path(socket).name
 
@@ -153,6 +149,13 @@ def cli(
         verbose=verbose,
         verbose_inf=verbose_inf,
     )
+    if not verbose:
+        ic.disable()
+    else:
+        ic.enable()
+
+    if verbose_inf:
+        gvd.enable()
 
 
 @cli.command()
@@ -173,11 +176,17 @@ def run(
         verbose=verbose,
         verbose_inf=verbose_inf,
     )
+    if not verbose:
+        ic.disable()
+    else:
+        ic.enable()
+
+    if verbose_inf:
+        gvd.enable()
 
     launch_tmux(
         server_name=server_name,
         arguments=arguments,
-        verbose=verbose,
     )
 
 
@@ -190,8 +199,16 @@ def _in_tmux(
     dict_output: bool,
     verbose: bool | int | float = False,
 ):
+    if not verbose:
+        ic.disable()
+    else:
+        ic.enable()
+
+    if verbose_inf:
+        gvd.enable()
+
     try:
-        in_tmux(verbose=verbose)
+        in_tmux()
     except ValueError:
         eprint("Error: not in tmux")
         sys.exit(1)
@@ -208,6 +225,14 @@ def alias_list_ls(
     dict_output: bool,
     verbose: bool | int | float = False,
 ):
+    if not verbose:
+        ic.disable()
+    else:
+        ic.enable()
+
+    if verbose_inf:
+        gvd.enable()
+
     ctx.invoke(ls, server_names=server_names, verbose=verbose, verbose_inf=verbose_inf)
 
 
@@ -227,26 +252,30 @@ def ls(
         verbose=verbose,
         verbose_inf=verbose_inf,
     )
+    if not verbose:
+        ic.disable()
+    else:
+        ic.enable()
+
+    if verbose_inf:
+        gvd.enable()
 
     if server_names:
         iterator = server_names
     else:
-        iterator = get_tmux_server_names(verbose=verbose)
+        iterator = get_tmux_server_names()
 
     for index, server in enumerate(iterator):
-        if verbose:
-            ic(index, server)
+        ic(index, server)
         for line in list_tmux(
             server_name=server,
             show_command=tty,
-            verbose=verbose,
         ):
             output(
                 (server, line),
                 reason=server,
                 dict_output=dict_output,
                 tty=tty,
-                verbose=verbose,
             )
 
 
@@ -270,11 +299,18 @@ def attach(
         verbose=verbose,
         verbose_inf=verbose_inf,
     )
+    if not verbose:
+        ic.disable()
+    else:
+        ic.enable()
+
+    if verbose_inf:
+        gvd.enable()
 
     if server_names:
         iterator = server_names
     else:
-        iterator = get_tmux_server_names(verbose=verbose)
+        iterator = get_tmux_server_names()
 
     _iterator = list(iterator)
     ic(_iterator)
@@ -285,14 +321,12 @@ def attach(
         _ = input("press enter")
 
     for index, server in enumerate(_iterator):
-        if verbose:
-            ic(index, server)
+        ic(index, server)
         for line in list_tmux(
             server_name=server,
             show_command=False,
-            verbose=verbose,
         ):
-            if verbose == inf:
+            if gvd:
                 ic(line)
             if not line.endswith("(attached)\n"):
                 window_id = line.split(":")[0]
