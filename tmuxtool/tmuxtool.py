@@ -92,15 +92,16 @@ def list_tmux(
     # if show_command:
     #    tmux_command.bake('-F', '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"')
     if show_command:
-        _result = sh.tmux(
+        _results = sh.tmux(
             "-L",
             server_name,
             "ls",
             "-F",
             '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
-        )
-        ic(_result)
-        yield _result
+        ).split("\n")
+        for _result in _results:
+            ic(_result)
+            yield _result
     else:
         for line in sh.tmux("-L", server_name, "ls"):
             ic(line)
