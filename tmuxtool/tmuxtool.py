@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import os
 import sys
-from math import inf
 from pathlib import Path
 from signal import SIG_DFL
 from signal import SIGPIPE
@@ -287,6 +286,7 @@ def ls(
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
 @click.option("--reverse", is_flag=True)
+@click.option("--simulate", is_flag=True)
 @click.option("--all", "all_at_once", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
@@ -296,6 +296,7 @@ def attach(
     verbose_inf: bool,
     dict_output: bool,
     reverse: bool,
+    simulate: bool,
     all_at_once: bool,
     verbose: bool | int | float = False,
 ):
@@ -340,4 +341,6 @@ def attach(
                 if all_at_once:
                     command = "/usr/bin/xterm -e '" + command + "'"
                     command += " &"
-                os.system(command)
+                ic(command)
+                if not simulate:
+                    os.system(command)
