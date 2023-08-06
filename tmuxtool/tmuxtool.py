@@ -333,7 +333,7 @@ def attach(
             show_command=False,
         ):
             ic(line)
-            if not line.endswith("(attached)\n"):
+            if not line.endswith("(attached)"):
                 window_id = line.split(":")[0]
                 # ic(window_id)
                 command = f"tmux -L {server} attach -t {window_id}"
