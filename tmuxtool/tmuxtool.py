@@ -340,6 +340,7 @@ def attach(
                 if all_at_once:
                     command = "/usr/bin/xterm -e '" + command + "'"
                     command += " &"
-                ic(command)
+                if ic.enabled:
+                    eprint("attaching:", command)
                 if not simulate:
                     os.system(command)
