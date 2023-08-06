@@ -332,8 +332,7 @@ def attach(
             server_name=server,
             show_command=False,
         ):
-            if gvd:
-                ic(line)
+            ic(line)
             if not line.endswith("(attached)\n"):
                 window_id = line.split(":")[0]
                 # ic(window_id)
