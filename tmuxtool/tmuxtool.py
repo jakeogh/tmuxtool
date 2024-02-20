@@ -223,16 +223,24 @@ def _in_tmux(
 
 @cli.command("list")
 @click.argument("server_names", type=str, nargs=-1)
+@click.option("--detached", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def alias_list_ls(
     ctx,
     server_names: tuple[str, ...],
+    detached: bool,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
 ):
-    ctx.invoke(ls, server_names=server_names, verbose=verbose, verbose_inf=verbose_inf)
+    ctx.invoke(
+        ls,
+        server_names=server_names,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+        detached=detached,
+    )
 
 
 @cli.command()
