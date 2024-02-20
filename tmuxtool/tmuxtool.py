@@ -281,7 +281,7 @@ def ls(
         ic(index, server)
         for line in list_tmux(
             server_name=server,
-            show_command=tty,
+            show_command=False,
             only_detached=detached,
             only_attached=False,
         ):
