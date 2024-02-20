@@ -341,7 +341,7 @@ def attach(
         ):
             ic(line)
             if not line.endswith("(attached)"):
-                window_id = line.split(":")[0]
+                window_id = line.split(":")[0].split(" ")[-1]
                 # ic(window_id)
                 command = f"tmux -L {server} attach -t {window_id}"
                 if all_at_once:
