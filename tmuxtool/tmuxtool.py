@@ -235,7 +235,7 @@ def alias_list_ls(
 
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
-@click.option("--detached", is_Flag=True)
+@click.option("--detached", is_flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def ls(
