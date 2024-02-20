@@ -35,7 +35,7 @@ from asserttool import ic
 from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
-from clicktool import tv
+from clicktool import tvicgvd
 from eprint import eprint
 from globalverbose import gvd
 from mptool import output
@@ -45,7 +45,9 @@ sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
 signal(SIGPIPE, SIG_DFL)
 
 
-def in_tmux(verbose: bool | int | float = False):
+def in_tmux(
+    verbose: bool | int | float = False,
+):
     try:
         print("os.environ['TMUX']:", os.environ["TMUX"])
     except KeyError:
@@ -58,7 +60,7 @@ def launch_tmux(
     *,
     server_name: str,
     arguments: list | tuple,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
     assert isinstance(arguments, list) or isinstance(arguments, tuple)
     sh.tmux("-L", server_name, "start-server")
@@ -83,7 +85,7 @@ def list_tmux(
     *,
     server_name: str,
     show_command: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
     ic(server_name)
     # tmux_command = sh.Command('tmux')
@@ -146,20 +148,15 @@ def cli(
     ctx,
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
-    if not verbose:
-        ic.disable()
-    else:
-        ic.enable()
-
-    if verbose_inf:
-        gvd.enable()
 
 
 @cli.command()
@@ -173,20 +170,15 @@ def run(
     arguments: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
-    if not verbose:
-        ic.disable()
-    else:
-        ic.enable()
-
-    if verbose_inf:
-        gvd.enable()
 
     launch_tmux(
         server_name=server_name,
@@ -201,16 +193,8 @@ def _in_tmux(
     ctx,
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
-    if not verbose:
-        ic.disable()
-    else:
-        ic.enable()
-
-    if verbose_inf:
-        gvd.enable()
-
     try:
         in_tmux()
     except ValueError:
@@ -227,16 +211,8 @@ def alias_list_ls(
     server_names: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
-    if not verbose:
-        ic.disable()
-    else:
-        ic.enable()
-
-    if verbose_inf:
-        gvd.enable()
-
     ctx.invoke(ls, server_names=server_names, verbose=verbose, verbose_inf=verbose_inf)
 
 
@@ -249,20 +225,15 @@ def ls(
     server_names: tuple[str, ...],
     verbose_inf: bool,
     dict_output: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
-    if not verbose:
-        ic.disable()
-    else:
-        ic.enable()
-
-    if verbose_inf:
-        gvd.enable()
 
     if server_names:
         iterator = server_names
@@ -298,20 +269,15 @@ def attach(
     reverse: bool,
     simulate: bool,
     all_at_once: bool,
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
-    tty, verbose = tv(
+    tty, verbose = tvicgvd(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
     )
-    if not verbose:
-        ic.disable()
-    else:
-        ic.enable()
-
-    if verbose_inf:
-        gvd.enable()
 
     if server_names:
         iterator = server_names
