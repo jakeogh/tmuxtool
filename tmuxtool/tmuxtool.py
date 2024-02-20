@@ -33,6 +33,7 @@ import click
 import psutil
 import sh
 from asserttool import ic
+from asserttool import maxone
 from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
@@ -89,9 +90,11 @@ def list_tmux(
     server_name: str,
     show_command: bool,
     only_detached: bool,
+    only_attached: bool,
     verbose: bool = False,
 ):
     ic(server_name)
+    maxone([only_attached, only_detached])
     # tmux_command = sh.Command('tmux')
     # tmux_command.bake('-L', server_name, 'ls')
     # if show_command:
@@ -108,6 +111,9 @@ def list_tmux(
         '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
     )
     if only_detached:
+        tmux_command = tmux_command.bake("-f", "#{==:#{session_attached},0}")
+
+    elif only_attached:
         tmux_command = tmux_command.bake("-f", "#{session_attached}")
 
     _results = tmux_command().strip().split("\n")
@@ -275,6 +281,7 @@ def ls(
             server_name=server,
             show_command=tty,
             only_detached=detached,
+            only_attached=False,
         ):
             output(
                 (server, line),
@@ -328,6 +335,7 @@ def attach(
             server_name=server,
             show_command=False,
             only_detached=True,
+            only_attached=False,
         ):
             ic(line)
             if not line.endswith("(attached)"):
