@@ -21,6 +21,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from pathlib import Path
@@ -44,9 +45,11 @@ sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
 
 signal(SIGPIPE, SIG_DFL)
 
+logging.basicConfig(level=logging.INFO)
+
 
 def in_tmux(
-    verbose: bool | int | float = False,
+    verbose: bool = False,
 ):
     try:
         print("os.environ['TMUX']:", os.environ["TMUX"])
@@ -97,7 +100,7 @@ def list_tmux(
             sh.tmux(
                 "-L",
                 server_name,
-                "ls",
+                "list-sessions",
                 "-F",
                 '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
             )
