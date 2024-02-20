@@ -88,6 +88,7 @@ def list_tmux(
     *,
     server_name: str,
     show_command: bool,
+    only_detached: bool,
     verbose: bool = False,
 ):
     ic(server_name)
@@ -95,25 +96,38 @@ def list_tmux(
     # tmux_command.bake('-L', server_name, 'ls')
     # if show_command:
     #    tmux_command.bake('-F', '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"')
-    if show_command:
-        _results = (
-            sh.tmux(
-                "-L",
-                server_name,
-                "list-sessions",
-                "-F",
-                '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
-            )
-            .strip()
-            .split("\n")
-        )
-        for _result in _results:
-            ic(_result)
-            yield _result
-    else:
-        for line in sh.tmux("-L", server_name, "ls").strip().split("\n"):
-            ic(line)
-            yield line
+
+    # -f "#{session_attached}"
+
+    tmux_command = sh.Command("tmux")
+    tmux_command = tmux_command.bake(
+        "-L",
+        server_name,
+        "list-sessions",
+        "-F",
+        '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
+    )
+
+    _results = tmux_command().strip().split("\n")
+
+    # _results = (
+    #    sh.tmux(
+    #        "-L",
+    #        server_name,
+    #        "list-sessions",
+    #        "-F",
+    #        '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
+    #    )
+    #    .strip()
+    #    .split("\n")
+    # )
+    for _result in _results:
+        ic(_result)
+        yield _result
+    # else:
+    #    for line in sh.tmux("-L", server_name, "ls").strip().split("\n"):
+    #        ic(line)
+    #        yield line
 
 
 def get_server_pids():
@@ -221,11 +235,13 @@ def alias_list_ls(
 
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
+@click.option("--detached", is_Flag=True)
 @click_add_options(click_global_options)
 @click.pass_context
 def ls(
     ctx,
     server_names: tuple[str, ...],
+    detached: bool,
     verbose_inf: bool,
     dict_output: bool,
     verbose: bool = False,
@@ -248,6 +264,7 @@ def ls(
         for line in list_tmux(
             server_name=server,
             show_command=tty,
+            only_detached=detached,
         ):
             output(
                 (server, line),
@@ -300,6 +317,7 @@ def attach(
         for line in list_tmux(
             server_name=server,
             show_command=False,
+            only_detached=True,
         ):
             ic(line)
             if not line.endswith("(attached)"):
