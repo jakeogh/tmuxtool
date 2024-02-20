@@ -107,6 +107,8 @@ def list_tmux(
         "-F",
         '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
     )
+    if only_detached:
+        tmux_command = tmux_command.bake("-f", '"#{session_attached}"')
 
     _results = tmux_command().strip().split("\n")
 
