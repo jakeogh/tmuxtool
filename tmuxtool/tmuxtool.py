@@ -49,9 +49,7 @@ signal(SIGPIPE, SIG_DFL)
 # logging.basicConfig(level=logging.INFO)
 
 
-def in_tmux(
-    verbose: bool = False,
-):
+def in_tmux():
     try:
         print("os.environ['TMUX']:", os.environ["TMUX"])
     except KeyError:
@@ -161,7 +159,7 @@ def get_server_sockets():
     return sockets
 
 
-def get_tmux_server_names(verbose: bool | int | float = False):
+def get_tmux_server_names():
     server_sockets = get_server_sockets()
     ic(server_sockets)
     for socket in server_sockets:
