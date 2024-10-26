@@ -354,7 +354,7 @@ def attach(
 
 
 @cli.command()
-@click.argument("prefix", type=str, nargs=-1)
+@click.argument("prefix", type=str, nargs=1)
 @click.option("--reverse", is_flag=True)
 @click.option("--simulate", is_flag=True)
 @click.option("--all", "all_at_once", is_flag=True)
