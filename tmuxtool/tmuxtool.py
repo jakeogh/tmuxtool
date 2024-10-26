@@ -379,9 +379,9 @@ def attach_prefix(
     )
 
     for server, line in list_all_sessions(servers=None, only_detached=True):
-        icp(server, line)
         if not server.startswith(prefix):
             continue
+        icp(server, line)
         if not line.endswith("(attached)"):
             window_id = line.split(":")[0].split(" ")[-1]
             # ic(window_id)
