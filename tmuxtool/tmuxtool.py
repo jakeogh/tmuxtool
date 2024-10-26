@@ -362,7 +362,7 @@ def attach(
 @click.pass_context
 def attach_prefix(
     ctx,
-    server_names: tuple[str, ...],
+    prefix: str,
     verbose_inf: bool,
     dict_output: bool,
     reverse: bool,
