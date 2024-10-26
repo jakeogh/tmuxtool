@@ -33,6 +33,7 @@ import click
 import psutil
 import sh
 from asserttool import ic
+from asserttool import icp
 from asserttool import maxone
 from click_auto_help import AHGroup
 from clicktool import click_add_options
@@ -62,7 +63,6 @@ def launch_tmux(
     *,
     server_name: str,
     arguments: list | tuple,
-    verbose: bool = False,
 ):
     assert isinstance(arguments, list) or isinstance(arguments, tuple)
     sh.tmux("-L", server_name, "start-server")
@@ -89,7 +89,6 @@ def list_tmux(
     show_command: bool,
     only_detached: bool,
     only_attached: bool,
-    verbose: bool = False,
 ):
     ic(server_name)
     maxone([only_attached, only_detached])
@@ -118,17 +117,6 @@ def list_tmux(
 
     _results = tmux_command().strip().split("\n")
 
-    # _results = (
-    #    sh.tmux(
-    #        "-L",
-    #        server_name,
-    #        "list-sessions",
-    #        "-F",
-    #        '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
-    #    )
-    #    .strip()
-    #    .split("\n")
-    # )
     for _result in _results:
         ic(_result)
         yield _result
@@ -249,6 +237,24 @@ def alias_list_ls(
     )
 
 
+def list_all_sessions(
+    *,
+    servers: None | tuple[str, ...],
+    only_detached: bool,
+):
+    if not servers:
+        servers = get_tmux_server_names()
+    for index, server in enumerate(servers):
+        ic(index, server)
+        for line in list_tmux(
+            server_name=server,
+            show_command=False,
+            only_detached=only_detached,
+            only_attached=False,
+        ):
+            yield server, line
+
+
 @cli.command()
 @click.argument("server_names", type=str, nargs=-1)
 @click.option("--detached", is_flag=True)
@@ -275,20 +281,16 @@ def ls(
     else:
         iterator = get_tmux_server_names()
 
-    for index, server in enumerate(iterator):
-        ic(index, server)
-        for line in list_tmux(
-            server_name=server,
-            show_command=False,
-            only_detached=detached,
-            only_attached=False,
-        ):
-            output(
-                (server, line),
-                reason=server,
-                dict_output=dict_output,
-                tty=tty,
-            )
+    for server, line in list_all_sessions(
+        servers=iterator,
+        only_detached=False,
+    ):
+        output(
+            (server, line),
+            reason=server,
+            dict_output=dict_output,
+            tty=tty,
+        )
 
 
 @cli.command()
@@ -349,3 +351,43 @@ def attach(
                     eprint("attaching:", command)
                 if not simulate:
                     os.system(command)
+
+
+@cli.command()
+@click.argument("prefix", type=str, nargs=-1)
+@click.option("--reverse", is_flag=True)
+@click.option("--simulate", is_flag=True)
+@click.option("--all", "all_at_once", is_flag=True)
+@click_add_options(click_global_options)
+@click.pass_context
+def attach_prefix(
+    ctx,
+    server_names: tuple[str, ...],
+    verbose_inf: bool,
+    dict_output: bool,
+    reverse: bool,
+    simulate: bool,
+    all_at_once: bool,
+    verbose: bool = False,
+):
+    tty, verbose = tvicgvd(
+        ctx=ctx,
+        verbose=verbose,
+        verbose_inf=verbose_inf,
+        ic=ic,
+        gvd=gvd,
+    )
+
+    for server, line in list_all_sessions(servers=None, only_detached=True):
+        icp(server, line)
+        if not line.endswith("(attached)"):
+            window_id = line.split(":")[0].split(" ")[-1]
+            # ic(window_id)
+            command = f"tmux -L {server} attach -t {window_id}"
+            if all_at_once:
+                command = "/usr/bin/xterm -e '" + command + "'"
+                command += " &"
+            if ic.enabled:
+                eprint("attaching:", command)
+            if not simulate:
+                os.system(command)
