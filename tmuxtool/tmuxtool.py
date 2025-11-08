@@ -11,8 +11,8 @@ from signal import SIGPIPE
 from signal import signal
 
 import click
+import hs
 import psutil
-import sh
 from asserttool import ic
 from asserttool import icp
 from asserttool import maxone
@@ -23,8 +23,6 @@ from clicktool import tvicgvd
 from eprint import eprint
 from globalverbose import gvd
 from mptool import output
-
-sh.mv = None  # use sh.busybox('mv'), coreutils ignores stdin read errors
 
 signal(SIGPIPE, SIG_DFL)
 
@@ -69,7 +67,7 @@ class MultiPaneSession:
         self.pane_count = 0
 
         # Start server if not running
-        sh.tmux(
+        hs.Command("tmux")(
             "-L",
             server_name,
             "start-server",
@@ -78,19 +76,19 @@ class MultiPaneSession:
         # Handle force_new
         if force_new:
             try:
-                sh.tmux(
+                hs.Command("tmux")(
                     "-L",
                     server_name,
                     "kill-session",
                     "-t",
                     session_name,
                 )
-            except sh.ErrorReturnCode:
+            except hs.ErrorReturnCode:
                 pass  # Session didn't exist, that's fine
 
         # Create session if it doesn't exist
         try:
-            sh.tmux(
+            hs.Command("tmux")(
                 "-L",
                 server_name,
                 "has-session",
@@ -98,9 +96,9 @@ class MultiPaneSession:
                 session_name,
             )
             # Session exists, we'll attach to it
-        except sh.ErrorReturnCode:
+        except hs.ErrorReturnCode:
             # Session doesn't exist, create it with a dummy command
-            sh.tmux(
+            hs.Command("tmux")(
                 "-L",
                 server_name,
                 "new-session",
@@ -112,7 +110,7 @@ class MultiPaneSession:
             )
 
         # Set options
-        sh.tmux(
+        hs.Command("tmux")(
             "-L",
             server_name,
             "set-option",
@@ -126,7 +124,7 @@ class MultiPaneSession:
 
     def _get_current_window(self) -> str:
         """Get the current window identifier."""
-        result = sh.tmux(
+        result = hs.Command("tmux")(
             "-L",
             self.server_name,
             "display-message",
@@ -139,7 +137,7 @@ class MultiPaneSession:
 
     def _tmux(self, *args):
         """Execute tmux command with server and session context."""
-        return sh.tmux(
+        return hs.Command("tmux")(
             "-L",
             self.server_name,
             *args,
@@ -234,7 +232,7 @@ class MultiPaneSession:
                 )
                 self.current_window = window_name
                 return
-        except sh.ErrorReturnCode:
+        except hs.ErrorReturnCode:
             pass
 
         # Window doesn't exist, create it
@@ -285,7 +283,7 @@ class MultiPaneSession:
                 f"{self.session_name}:{self.current_window}",
                 layout_to_use,
             )
-        except sh.ErrorReturnCode as e:
+        except hs.ErrorReturnCode as e:
             # Layout might fail with certain pane counts, that's OK
             ic(f"Layout application failed (might be OK): {e}")
 
@@ -309,12 +307,12 @@ def launch_tmux(
     arguments: list | tuple,
 ):
     assert isinstance(arguments, (list, tuple))
-    sh.tmux(
+    hs.Command("tmux")(
         "-L",
         server_name,
         "start-server",
     )
-    sh.tmux(
+    hs.Command("tmux")(
         "-L",
         server_name,
         "set-option",
@@ -323,7 +321,7 @@ def launch_tmux(
         "failed",
     )
 
-    xterm_process = sh.xterm.bake(
+    xterm_process = hs.xterm.bake(
         "-e",
         "tmux",
         "-L",
@@ -351,8 +349,8 @@ def list_tmux(
     if show_command:
         logging.basicConfig(level=logging.INFO)
 
-    tmux_command = sh.Command("tmux")
-    tmux_command = tmux_command.bake(
+    tmux_command = hs.Command("tmux")
+    tmux_command.bake(
         "-L",
         server_name,
         "list-sessions",
@@ -360,9 +358,9 @@ def list_tmux(
         '"#{session_created} #{session_name}: #{session_windows} windows (created #{t:session_created})#{?session_grouped, (group ,}#{session_group}#{?session_grouped,),} #{pane_title} #{?session_attached,(attached),}"',
     )
     if only_detached:
-        tmux_command = tmux_command.bake("-f", "#{==:#{session_attached},0}")
+        tmux_command.bake("-f", "#{==:#{session_attached},0}")
     elif only_attached:
-        tmux_command = tmux_command.bake("-f", "#{session_attached}")
+        tmux_command.bake("-f", "#{session_attached}")
 
     _results = tmux_command().strip().split("\n")
 
