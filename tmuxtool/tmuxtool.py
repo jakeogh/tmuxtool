@@ -150,66 +150,61 @@ class MultiPaneSession:
         window: str | None = None,
     ) -> str:
         """
-        Add a pane and immediately start the command.
+        Add a window and immediately start the command.
 
         Args:
             *command: Command and arguments as separate strings
-            title: Optional pane title (sets pane border title)
-            window: Optional window name (creates if doesn't exist, switches to it)
+            title: Optional window name
+            window: Optional window name (if None, auto-generates)
 
         Returns:
-            pane_id: tmux pane identifier (e.g., "%1")
+            window_id: tmux window identifier
         """
         if not command:
             raise ValueError("Command cannot be empty")
 
-        # Switch window if requested
-        if window is not None:
-            self._ensure_window(window)
+        # Auto-generate window name if not provided
+        if window is None:
+            window = title or f"win-{self.pane_count}"
 
-        # If this is the first pane, respawn the initial window instead of splitting
+        # If this is the first window, respawn it instead of creating new
         if self.pane_count == 0:
-            # Kill the placeholder sleep process and start real command
             target = f"{self.session_name}:{self.current_window}.0"
             self._tmux(
                 "respawn-pane",
                 "-t",
                 target,
-                "-k",  # Kill existing process
+                "-k",
                 *command,
             )
-            pane_id = self._tmux(
-                "display-message", "-t", target, "-p", "#{pane_id}"
+            window_id = self._tmux(
+                "display-message", "-t", target, "-p", "#{window_id}"
             ).strip()
+            # Rename the window if title provided
+            if title is not None:
+                self._tmux(
+                    "rename-window",
+                    "-t",
+                    window_id,
+                    title,
+                )
         else:
-            # Split window and run command
-            pane_id = self._tmux(
-                "split-window",
+            # Create new window
+            window_id = self._tmux(
+                "new-window",
                 "-t",
-                f"{self.session_name}:{self.current_window}",
-                "-d",  # Don't switch to new pane
-                "-P",  # Print new pane ID
+                self.session_name,
+                "-n",
+                window,
+                "-d",
+                "-P",
                 "-F",
-                "#{pane_id}",
+                "#{window_id}",
                 *command,
             ).strip()
-
-            # Apply layout after each split to keep things organized
-            self.apply_layout()
 
         self.pane_count += 1
-
-        # Set pane title if provided
-        if title is not None:
-            self._tmux(
-                "select-pane",
-                "-t",
-                pane_id,
-                "-T",
-                title,
-            )
-
-        return pane_id
+        return window_id
 
     def _ensure_window(self, window_name: str):
         """Ensure window exists and switch to it."""
