@@ -17,10 +17,8 @@ from asserttool import maxone
 from click_auto_help import AHGroup
 from clicktool import click_add_options
 from clicktool import click_global_options
-from clicktool import tvicgvd
+from clicktool import tvic
 from eprint import eprint
-from globalverbose import gvd
-from mptool import output
 
 signal(SIGPIPE, SIG_DFL)
 
@@ -331,12 +329,11 @@ def cli(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
 
@@ -357,12 +354,11 @@ def run(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     launch_tmux(
@@ -430,12 +426,11 @@ def ls(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     if server_names:
@@ -447,12 +442,7 @@ def ls(
         servers=iterator,
         only_detached=detached,
     ):
-        output(
-            (server, line),
-            reason=server,
-            dict_output=dict_output,
-            tty=tty,
-        )
+        print({server: (server, line)} if dict_output else (server, line), flush=True)
 
 
 @cli.command()
@@ -480,12 +470,11 @@ def attach(
     all_at_once: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     if server_names:
@@ -542,12 +531,11 @@ def attach_prefix(
     all_at_once: bool,
     verbose: bool = False,
 ) -> None:
-    tty, verbose = tvicgvd(
+    tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
         verbose_inf=verbose_inf,
         ic=ic,
-        gvd=gvd,
     )
 
     for server, line in list_all_sessions(servers=None, only_detached=True):
