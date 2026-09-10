@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tmuxtool"
-version = "1!0.0.1788850579"
+version = "1!0.0.1789047808"
 description = "python tmux launcher"
 authors = [
     { name = "Justin Keogh", email = "github.com@v6y.net" },

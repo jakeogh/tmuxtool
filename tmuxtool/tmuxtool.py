@@ -20,8 +20,6 @@ from clicktool import click_global_options
 from clicktool import tvic
 from eprint import eprint
 
-signal(SIGPIPE, SIG_DFL)
-
 _tmux = hs.Command("tmux")
 
 
@@ -329,6 +327,11 @@ def cli(
     dict_output: bool,
     verbose: bool = False,
 ) -> None:
+    # Die quietly when a pipe closes, like any shell tool. Only here: doing
+    # this at import time changed the disposition in every process that
+    # imported MultiPaneSession, and a long-lived server writing to sockets
+    # must keep SIGPIPE ignored or the first client hangup kills it.
+    signal(SIGPIPE, SIG_DFL)
     tty, verbose = tvic(
         ctx=ctx,
         verbose=verbose,
